@@ -1,3 +1,4 @@
+import "dotenv/config";
 import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState,
@@ -110,7 +111,7 @@ async function startBot() {
           await sock.sendMessage(jid, { text: reply }, { quoted: message });
           continue;
         }
-        if (["sticker", "s", "stickerly", "toimg", "play", "video", "song", "musique"].includes(parsed.command)) {
+        if (["sticker", "s", "stickerly", "toimg", "play", "video", "song", "musique", "react"].includes(parsed.command)) {
           const result = await handleMediaCommand(parsed, context, downloadMediaMessage);
           if (result?.text) await sock.sendMessage(jid, { text: result.text }, { quoted: message });
           else if (result?.sticker) await sock.sendMessage(jid, { sticker: result.sticker }, { quoted: message });
