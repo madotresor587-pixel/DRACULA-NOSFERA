@@ -4,7 +4,7 @@ Bot WhatsApp expérimental en JavaScript/Node.js pour Termux, basé sur Baileys.
 
 ## Commandes
 
-**Base et outils :** `.menu`, `.ping`, `.info`, `.diagnostic`, `.correcteur`, `.calcul`, `.date`, `.heure`, `.uptime`, `.memoire`, `.blague`, `.citation`, `.de`, `.pile`, `.8ball`, `.choisir`, `.hasard`, `.quiz`, `.inverse`, `.majuscules`, `.minuscules`, `.compter`, `.emoji`.
+**Commandes inspirées de DEADPOOL-MD :** `.settings`, `.password 16`, `.uuid`, `.hash texte`, `.base64 encode/decode texte`, `.convert 10 km mi`, `.fact`, `.rate texte`, `.ship prénom1 | prénom2`, `.rps pierre/papier/ciseaux` et alias `.calc`, `.groupinfo`, `.choose`, `.reverse`, `.joke`, `.quote`, `.roll`, `.coin`, `.sysinfo`.\n\n**Base et outils :** `.menu`, `.ping`, `.info`, `.diagnostic`, `.correcteur`, `.calcul`, `.date`, `.heure`, `.uptime`, `.memoire`, `.blague`, `.citation`, `.de`, `.pile`, `.8ball`, `.choisir`, `.hasard`, `.quiz`, `.inverse`, `.majuscules`, `.minuscules`, `.compter`, `.emoji`.
 
 **IA :** `.ia ta question` ou `.ai ta question`. Nécessite une clé API OpenAI et un compte/configuration API valide. Ajoute la clé uniquement dans le fichier local `.env`, jamais dans GitHub. L’utilisation de l’API peut être facturée selon ton compte.
 
@@ -18,12 +18,12 @@ Bot WhatsApp expérimental en JavaScript/Node.js pour Termux, basé sur Baileys.
 - La conversion de vidéo/GIF en sticker animé n’est pas encore implémentée.
 
 **Groupes :**
-- `.groupe`, `.lien`, `.tagall`, `.kick @membre`, `.promote @membre`, `.demote @membre`, `.mute`, `.unmute`, `.setname`, `.setdesc`.
+- `.groupe` / `.groupinfo`, `.admins`, `.tagadmins`, `.hidetag`, `.poll Question | option 1 | option 2`, `.lien`, `.tagall`, `.kick @membre`, `.promote @membre`, `.demote @membre`, `.mute`, `.unmute`, `.setname`, `.setdesc`.
 - `.antilink on/off` : filtrage des liens.
 - `.antimention on/off` : filtre les messages contenant 5 mentions ou plus.
 - `.welcome on/off` et `.goodbye on/off` : messages d’arrivée/départ.
 - `.autoreact on/off` : réaction automatique dans le groupe.
-- Les réglages anti-lien, anti-mention, welcome/goodbye et auto-réaction sont en mémoire : ils reviennent aux valeurs par défaut après redémarrage.
+- `.admins` affiche les administrateurs ; `.tagadmins`, `.hidetag` et `.poll` fonctionnent dans les groupes. Les mentions nécessitent les droits admin. Les réglages anti-lien, anti-mention, welcome/goodbye et auto-réaction sont en mémoire : ils reviennent aux valeurs par défaut après redémarrage.
 - Les actions de modération nécessitent les droits appropriés. La suppression de messages peut être refusée par WhatsApp si le bot n’a pas les permissions.
 
 **Association :** QR par défaut. Pour essayer le code d’association par numéro, configure `PAIRING_NUMBER` dans le fichier local `.env`, redémarre le bot, puis suis les instructions WhatsApp. Ne partage jamais ce numéro ni ton dossier de session.
