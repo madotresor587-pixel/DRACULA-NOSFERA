@@ -1,0 +1,16 @@
+{
+  "name": "dracula-nosfera",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp expérimental pour Termux",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "check": "node --check index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "pino": "latest",
+    "qrcode-terminal": "latest"
+  }
+}
