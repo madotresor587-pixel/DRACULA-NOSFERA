@@ -1,44 +1,63 @@
 # 🧛🏾 DRACULA NOSFERA
 
-Bot WhatsApp expérimental pour Node.js et Termux.
+Bot WhatsApp expérimental pour Node.js et Termux, construit avec Baileys.
 
-## Commandes incluses
-- `.menu` ou `.help` : afficher le menu.
-- `.ping` : tester si le bot répond.
-- `.info` : afficher les informations de base.
+## Commandes disponibles
+
+| Commande | Fonction |
+|---|---|
+| `.menu`, `.help`, `.aide` | Afficher le menu |
+| `.ping` | Tester si le bot répond |
+| `.info` | Informations de version |
+| `.owner` | Indiquer que le contact propriétaire reste à configurer |
+| `.date` | Date du serveur |
+| `.heure`, `.time` | Heure du serveur |
+| `.blague`, `.joke` | Blague aléatoire |
+| `.citation`, `.quote` | Citation aléatoire |
+| `.de`, `.dice` | Lancer un dé |
+| `.pile`, `.face` | Pile ou face |
+| `.choisir option1 | option2` | Choix aléatoire entre plusieurs options |
+| `.groupe` | Nom du groupe, nombre de membres et d’administrateurs |
+| `.regles`, `.rules` | Afficher des règles suggérées |
 
 ## Installation dans Termux
-Installe les outils nécessaires :
+
 ```sh
 pkg update
 pkg install nodejs git
-```
-
-Télécharge le dépôt et installe les dépendances :
-```sh
 git clone https://github.com/madotresor587-pixel/DRACULA-NOSFERA.git
 cd DRACULA-NOSFERA
 npm install
 npm start
 ```
 
-Scanne le QR code avec WhatsApp > Appareils connectés > Connecter un appareil.
+Scanne le QR code depuis WhatsApp > Appareils connectés > Connecter un appareil.
 
-## Si tu as déjà le dossier dans Termux
-Depuis le dossier du projet, récupère les derniers fichiers :
+## Mettre à jour une copie déjà installée
+
+Dans le dossier du projet :
+
 ```sh
 git pull
 npm install
+npm run check
+npm test
 npm start
 ```
 
-## Sécurité importante
-- Ne publie et ne partage jamais le dossier `auth_info/` : il contient les informations de session WhatsApp.
-- Ne partage jamais les codes de vérification WhatsApp, mots de passe, jetons ou fichiers `.env`.
-- Le dépôt est public : seuls les fichiers du code source doivent y être envoyés.
-- Baileys est une bibliothèque non officielle. Utilise-la prudemment et respecte les règles de WhatsApp.
+Si `git pull` indique des modifications locales ou un conflit, arrête-toi et demande de l’aide avant de supprimer des fichiers.
 
-## Vérifier la syntaxe
+## Sécurité
+
+- Ne publie et ne partage jamais `auth_info/` : ce dossier contient les informations de session WhatsApp.
+- Ne partage jamais de code de vérification, mot de passe, jeton ou fichier `.env`.
+- Le dépôt est public : ne committe que le code source et les fichiers sans secrets.
+- Baileys est une bibliothèque non officielle. Son usage peut présenter des risques pour le compte WhatsApp ; respecte les conditions du service et teste prudemment.
+- Les commandes du bot ne garantissent pas que la connexion restera active : les changements WhatsApp ou du réseau peuvent interrompre la session.
+
+## Vérifications locales
+
 ```sh
 npm run check
-```
+npm test
+``
