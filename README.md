@@ -1,63 +1,50 @@
 # 🧛🏾 DRACULA NOSFERA
 
-Bot WhatsApp expérimental pour Node.js et Termux, construit avec Baileys.
+Bot WhatsApp en JavaScript pour Node.js/Termux, basé sur Baileys.
 
 ## Commandes disponibles
 
-| Commande | Fonction |
-|---|---|
-| `.menu`, `.help`, `.aide` | Afficher le menu |
-| `.ping` | Tester si le bot répond |
-| `.info` | Informations de version |
-| `.owner` | Indiquer que le contact propriétaire reste à configurer |
-| `.date` | Date du serveur |
-| `.heure`, `.time` | Heure du serveur |
-| `.blague`, `.joke` | Blague aléatoire |
-| `.citation`, `.quote` | Citation aléatoire |
-| `.de`, `.dice` | Lancer un dé |
-| `.pile`, `.face` | Pile ou face |
-| `.choisir option1 | option2` | Choix aléatoire entre plusieurs options |
-| `.groupe` | Nom du groupe, nombre de membres et d’administrateurs |
-| `.regles`, `.rules` | Afficher des règles suggérées |
+- `.menu`, `.help`, `.aide` : menu
+- `.ping` : tester la réponse du gestionnaire
+- `.info` : version et environnement
+- `.diagnostic`, `.diag` : diagnostic local, version Node, plateforme, uptime et mémoire
+- `.calcul`, `.calc`, `.math` : calculs avec +, -, *, /, %, parenthèses, sans eval
+- `.date` : date du serveur
+- `.heure`, `.time` : heure du serveur
+- `.uptime` : durée de fonctionnement
+- `.memoire`, `.memory` : mémoire du processus
+- `.blague`, `.joke` : blague aléatoire
+- `.citation`, `.quote` : citation aléatoire
+- `.de`, `.dice` : dé à six faces
+- `.pile`, `.face` : pile ou face
+- `.choisir A | B` : choix aléatoire
+- `.hasard 1 100`, `.random` : nombre aléatoire
+- `.inverse texte` : inverser un texte
+- `.majuscules texte`, `.upper` : majuscules
+- `.minuscules texte`, `.lower` : minuscules
+- `.compter texte`, `.count` : compter caractères et mots
+- `.groupe` : informations du groupe
+- `.regles`, `.rules` : règles suggérées
+- `.owner`, `.proprietaire` : état de configuration du propriétaire
 
-## Installation dans Termux
+L’objectif initial est 430 commandes, mais seules les commandes ci-dessus sont actuellement implémentées. Les autres ne sont pas annoncées comme disponibles tant qu’elles ne sont pas ajoutées et testées.
 
-```sh
-pkg update
-pkg install nodejs git
-git clone https://github.com/madotresor587-pixel/DRACULA-NOSFERA.git
-cd DRACULA-NOSFERA
-npm install
-npm start
-```
+## Installation
 
-Scanne le QR code depuis WhatsApp > Appareils connectés > Connecter un appareil.
+Dans Termux : installe Node.js et Git, puis exécute `git clone https://github.com/madotresor587-pixel/DRACULA-NOSFERA.git`, entre dans le dossier, puis lance `npm install`, `npm run check`, `npm test` et `npm start`.
 
-## Mettre à jour une copie déjà installée
+Scanne le QR depuis WhatsApp > Appareils connectés > Connecter un appareil.
 
-Dans le dossier du projet :
+## Mise à jour
 
-```sh
-git pull
-npm install
-npm run check
-npm test
-npm start
-```
+Dans le dossier du projet : `git pull`, puis `npm install`, `npm run check`, `npm test`, et enfin `npm start`.
 
-Si `git pull` indique des modifications locales ou un conflit, arrête-toi et demande de l’aide avant de supprimer des fichiers.
+GitHub Actions exécute automatiquement les vérifications et les tests sur les changements de la branche main. Consulte l’onglet Actions pour voir les résultats.
 
 ## Sécurité
 
-- Ne publie et ne partage jamais `auth_info/` : ce dossier contient les informations de session WhatsApp.
+- Ne partage jamais `auth_info/` : ce dossier contient la session WhatsApp.
 - Ne partage jamais de code de vérification, mot de passe, jeton ou fichier `.env`.
-- Le dépôt est public : ne committe que le code source et les fichiers sans secrets.
-- Baileys est une bibliothèque non officielle. Son usage peut présenter des risques pour le compte WhatsApp ; respecte les conditions du service et teste prudemment.
-- Les commandes du bot ne garantissent pas que la connexion restera active : les changements WhatsApp ou du réseau peuvent interrompre la session.
-
-## Vérifications locales
-
-```sh
-npm run check
-npm test
-``
+- Le dépôt est public : n’y publie aucun secret.
+- Baileys est une bibliothèque non officielle. Respecte les règles de WhatsApp.
+- Le diagnostic informe mais ne répare pas automatiquement les problèmes de réseau ou de session.
