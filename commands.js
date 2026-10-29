@@ -50,6 +50,11 @@ const COMMANDS = [
   [".sticker / .s", "Créer un sticker depuis une image citée"],
   [".vv", "Renvoyer une photo, vidéo ou audio normal en vue unique"],
   [".react ❤️", "Réagir à un message cité"],
+  [".anti", "Afficher les commandes de protection"],
+  [".antispam on|off", "Protection basique contre les messages répétés"],
+  [".kickall / .kickall2", "Désactivés par sécurité; utilise .kick @membre"],
+  [".imageprompt / .animeprompt / .logoprompt / .posterprompt", "Préparer des prompts pour générateurs d’images"],
+  [".iaimage description", "Créer un prompt d’image à copier dans un générateur"],
   [".antilink on/off / .antimention on/off", "Protections de groupe"],
   [".welcome on/off / .goodbye on/off", "Messages d’arrivée et de départ"],
   [".autoreact on/off", "Réaction automatique dans un groupe"],
@@ -176,6 +181,7 @@ export async function getCommandReply(parsed, context) {
     case "minuscules": case "lower": return args ? args.toLocaleLowerCase("fr-FR") : "Utilisation : .minuscules TON TEXTE";
     case "compter": case "count": return args ? "🔢 Caractères : " + [...args].length + "\nMots : " + ((args.match(/\S+/g) || []).length) : "Utilisation : .compter un texte";
     case "emoji": return args ? "✨ " + args : "😀 😎 😂 🔥 ❤️ 🧛🏾 🎉 💯";
+    case "antispam": return "Utilisation : .antispam on ou .antispam off (administrateur requis).";
     case "settings": {
       const saved = isGroup ? (context.groupSettings?.get(jid) || {}) : {};
       return "⚙️ *DRACULA NOSFERA — RÉGLAGES*\n" +
@@ -305,6 +311,24 @@ export async function getCommandReply(parsed, context) {
       return "✅ Description du groupe mise à jour.";
     }
     case "regles": case "rules": return "📜 Règles suggérées\n1. Respecter tout le monde.\n2. Éviter le spam.\n3. Ne pas partager les informations privées d’autrui.\n4. Demander l’accord avant de partager une photo ou un contact.\n5. Respecter les règles du groupe.";
+    case "anti": return "🛡️ MENU ANTI\\n.antilink on — supprimer les liens\\n.antilink warn — avertir sans supprimer\\n.antilink off — désactiver\\n.antimention on/off\\n.antispam on/off";
+    case "kickall": case "kickall2": return "⛔ Le retrait massif de tous les membres est désactivé pour éviter une expulsion accidentelle. Utilise .kick @membre pour une action ciblée.";
+    case "imageprompt": case "iaimage": {
+      if (!args) return "Utilisation : .imageprompt un lion royal dans une ville futuriste";
+      return "🎨 PROMPT IMAGE À COPIER\\n" + args.slice(0,700) + "\\nStyle : illustration détaillée, composition cinématographique, lumière maîtrisée, couleurs harmonieuses, sujet net, arrière-plan cohérent, haute qualité, sans filigrane.\\nCette commande prépare le prompt; elle ne génère pas directement l’image.";
+    }
+    case "animeprompt": {
+      if (!args) return "Utilisation : .animeprompt un héros africain qui contrôle la foudre";
+      return "🎨 PROMPT ANIME\\nIllustration anime originale de : " + args.slice(0,700) + ". Personnage expressif, pose dynamique, décor riche, éclairage dramatique, lignes propres, cadrage vertical 4:5, sans filigrane.";
+    }
+    case "logoprompt": {
+      if (!args) return "Utilisation : .logoprompt Univers R.M 2.0";
+      return "🎨 PROMPT LOGO\\nLogo original pour : " + args.slice(0,500) + ". Silhouette nette, contraste élevé, palette de trois couleurs maximum, lisible en petite taille, composition centrée, sans éléments inutiles.";
+    }
+    case "posterprompt": {
+      if (!args) return "Utilisation : .posterprompt affiche BD humoristique dans un marché africain";
+      return "🎨 PROMPT AFFICHE\\nAffiche verticale pour : " + args.slice(0,600) + ". Hiérarchie visuelle claire, personnages expressifs, décor détaillé, composition cinématographique, couleurs vibrantes, bulles lisibles si nécessaires, sans filigrane.";
+    }
     default: return "❓ Commande inconnue : " + (parsed.prefix || ".") + command + "\nTape .menu pour voir les commandes disponibles.";
   }
 }
