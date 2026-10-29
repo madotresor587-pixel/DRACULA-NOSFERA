@@ -38,6 +38,15 @@ const COMMANDS = [
   [".promote / .demote @membre", "Gérer les admins (admin requis)"],
   [".mute / .unmute", "Fermer ou ouvrir le groupe (admin requis)"],
   [".setname / .setdesc", "Modifier les infos du groupe (admin requis)"],
+  [".ia / .ai question", "Assistant IA (clé API requise)"],
+  [".play / .video titre", "Recherche de liens vidéo et musique"],
+  [".sticker", "Créer un sticker depuis une image citée"],
+  [".toimg", "Conversion sticker vers image (pas encore disponible)"],
+  [".react ❤️", "Réagir à un message cité"],
+  [".antilink on/off / .antimention on/off", "Protections de groupe"],
+  [".welcome on/off / .goodbye on/off", "Messages d’arrivée et de départ"],
+  [".autoreact on/off", "Réaction automatique dans un groupe"],
+  [".pair", "Instructions pour le code d’association"],
   [".regles / .owner", "Règles et configuration"]
 ];
 
@@ -115,8 +124,9 @@ export async function getCommandReply(parsed, context) {
   const now = new Date();
   switch (command) {
     case "menu": case "help": case "aide": return formatMenu(botName);
+    case "pair": return process.env.PAIRING_NUMBER ? "📱 Le code d’association est demandé au démarrage. Consulte Termux et saisis le code dans WhatsApp > Appareils connectés." : "📱 Pour utiliser le code d’association, configure PAIRING_NUMBER dans ton fichier .env local, puis redémarre. Ne publie jamais ton numéro ni ce fichier.";
     case "ping": return "🏓 Pong ! Le gestionnaire de messages répond.";
-    case "info": return "🧛🏾 " + botName + "\n⚙️ Version 1.3.0\n📱 Node.js / Termux\n🧩 Préfixes . et !\n🛠️ Diagnostic, outils et commandes de groupe";
+    case "info": return "🧛🏾 " + botName + "\n⚙️ Version 1.4.0\n📱 Node.js / Termux\n🧩 Préfixes . et !\n🛠️ Diagnostic, outils et commandes de groupe";
     case "correcteur": case "selftest": {
       const checks = [];
       try { checks.push(calculate("2+2") === 4); } catch { checks.push(false); }
