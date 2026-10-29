@@ -45,9 +45,9 @@ export function parseCommand(input) {
 
 function pick(items) { return items[Math.floor(Math.random() * items.length)]; }
 function formatMenu(botName) {
-  return "*" + botName + " — MENU*\\n\\n" +
-    COMMANDS.map(([name, desc]) => name + " — " + desc).join("\\n") +
-    "\\n\\nPréfixe : .\\nℹ️ Certaines commandes fonctionnent uniquement dans un groupe.";
+  return "*" + botName + " — MENU*\n\n" +
+    COMMANDS.map(([name, desc]) => name + " — " + desc).join("\n") +
+    "\n\nPréfixe : .\nℹ️ Certaines commandes fonctionnent uniquement dans un groupe.";
 }
 
 // Calculateur arithmétique récursif. Aucun eval() ni Function().
@@ -112,16 +112,16 @@ export async function getCommandReply(parsed, context) {
   switch (command) {
     case "menu": case "help": case "aide": return formatMenu(botName);
     case "ping": return "🏓 Pong ! Le gestionnaire de messages répond.";
-    case "info": return "🧛🏾 " + botName + "\\n⚙️ Version 1.2.0\\n📱 Node.js / Termux\\n🧩 Commandes utilitaires activées";
+    case "info": return "🧛🏾 " + botName + "\n⚙️ Version 1.2.0\n📱 Node.js / Termux\n🧩 Commandes utilitaires activées";
     case "diagnostic": case "diag": {
       const m = process.memoryUsage();
-      return "🩺 DIAGNOSTIC LOCAL\\nNode.js : " + process.version +
-        "\\nPlateforme : " + process.platform + "\\nUptime : " + duration(process.uptime()) +
-        "\\nMémoire RSS : " + (m.rss / 1048576).toFixed(1) + " Mo" +
-        "\\nHeap utilisé : " + (m.heapUsed / 1048576).toFixed(1) + " Mo" +
-        "\\nGestionnaire de commandes : actif" +
-        "\\nWhatsApp : vérifie l’état de connexion dans Termux." +
-        "\\n⚠️ Le diagnostic ne répare pas automatiquement les problèmes réseau ou de session.";
+      return "🩺 DIAGNOSTIC LOCAL\nNode.js : " + process.version +
+        "\nPlateforme : " + process.platform + "\nUptime : " + duration(process.uptime()) +
+        "\nMémoire RSS : " + (m.rss / 1048576).toFixed(1) + " Mo" +
+        "\nHeap utilisé : " + (m.heapUsed / 1048576).toFixed(1) + " Mo" +
+        "\nGestionnaire de commandes : actif" +
+        "\nWhatsApp : vérifie l’état de connexion dans Termux." +
+        "\n⚠️ Le diagnostic ne répare pas automatiquement les problèmes réseau ou de session.";
     }
     case "calcul": case "calc": case "math":
       try {
@@ -134,7 +134,7 @@ export async function getCommandReply(parsed, context) {
     case "uptime": return "⏱️ Le processus tourne depuis " + duration(process.uptime()) + ".";
     case "memoire": case "memory": {
       const m = process.memoryUsage();
-      return "🧠 Mémoire du bot\\nRSS : " + (m.rss / 1048576).toFixed(1) + " Mo\\nHeap utilisé : " + (m.heapUsed / 1048576).toFixed(1) + " Mo\\nHeap total : " + (m.heapTotal / 1048576).toFixed(1) + " Mo";
+      return "🧠 Mémoire du bot\nRSS : " + (m.rss / 1048576).toFixed(1) + " Mo\nHeap utilisé : " + (m.heapUsed / 1048576).toFixed(1) + " Mo\nHeap total : " + (m.heapTotal / 1048576).toFixed(1) + " Mo";
     }
     case "blague": case "joke": return pick(jokes);
     case "citation": case "quote": return "💬 " + pick(quotes);
@@ -152,13 +152,13 @@ export async function getCommandReply(parsed, context) {
     case "inverse": return args ? [...args].reverse().join("") : "Utilisation : .inverse Bonjour";
     case "majuscules": case "upper": return args ? args.toLocaleUpperCase("fr-FR") : "Utilisation : .majuscules ton texte";
     case "minuscules": case "lower": return args ? args.toLocaleLowerCase("fr-FR") : "Utilisation : .minuscules TON TEXTE";
-    case "compter": case "count": return args ? "🔢 Caractères : " + [...args].length + "\\nMots : " + ((args.match(/\S+/g) || []).length) : "Utilisation : .compter un texte";
+    case "compter": case "count": return args ? "🔢 Caractères : " + [...args].length + "\nMots : " + ((args.match(/\S+/g) || []).length) : "Utilisation : .compter un texte";
     case "groupe": {
       if (!isGroup) return "ℹ️ Cette commande fonctionne uniquement dans un groupe WhatsApp.";
       const meta = await sock.groupMetadata(jid);
-      return "👥 Informations du groupe\\nNom : " + (meta.subject || "Sans nom") + "\\nMembres : " + meta.participants.length + "\\nAdministrateurs : " + meta.participants.filter(p => p.admin).length;
+      return "👥 Informations du groupe\nNom : " + (meta.subject || "Sans nom") + "\nMembres : " + meta.participants.length + "\nAdministrateurs : " + meta.participants.filter(p => p.admin).length;
     }
-    case "regles": case "rules": return "📜 Règles suggérées\\n1. Respecter tout le monde.\\n2. Éviter le spam.\\n3. Ne pas partager les informations privées d’autrui.\\n4. Demander l’accord avant de partager une photo ou un contact.\\n5. Respecter les règles du groupe.";
-    default: return "❓ Commande inconnue : ." + command + "\\nTape .menu pour voir les commandes disponibles.";
+    case "regles": case "rules": return "📜 Règles suggérées\n1. Respecter tout le monde.\n2. Éviter le spam.\n3. Ne pas partager les informations privées d’autrui.\n4. Demander l’accord avant de partager une photo ou un contact.\n5. Respecter les règles du groupe.";
+    default: return "❓ Commande inconnue : ." + command + "\nTape .menu pour voir les commandes disponibles.";
   }
 }
