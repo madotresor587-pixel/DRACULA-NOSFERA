@@ -1,3 +1,5 @@
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+
 const jokes = [
   "Un élève dit : « Monsieur, je n’ai pas raté le cours, j’étais juste absent physiquement. » 😂",
   "Au marché, le client demande une réduction. La vendeuse répond : « Je peux réduire le prix… mais pas le piment ! » 🌶️",
@@ -28,11 +30,15 @@ const COMMANDS = [
   [".memoire", "Utilisation mémoire"],
   [".blague / .citation", "Divertissement"],
   [".de / .pile / .8ball question", "Jeux aléatoires"],
-  [".choisir A | B / .hasard 1 100", "Choix ou nombre aléatoire"],
+  [".choisir / .choose A | B / .hasard / .random 1 100", "Choix ou nombre aléatoire"],
+  [".convert 10 km mi / .uuid / .password 16", "Conversions, identifiant et mot de passe aléatoires"],
+  [".base64 encode/decode texte / .hash texte", "Encodage et empreinte SHA-256"],
+  [".settings", "Afficher les réglages de groupe disponibles"],
   [".quiz", "Question de quiz"],
   [".inverse / .majuscules / .minuscules", "Outils de texte"],
   [".compter / .emoji", "Compter texte ou envoyer un emoji"],
-  [".groupe / .lien", "Informations du groupe et lien d’invitation"],
+  [".groupe / .groupinfo / .admins / .tagadmins / .hidetag / .lien", "Informations et mentions de groupe"],
+  [".poll question | option 1 | option 2", "Créer un sondage dans un groupe"],
   [".tagall", "Mentionner les membres (admin requis)"],
   [".kick @membre", "Retirer un membre (admin requis)"],
   [".promote / .demote @membre", "Gérer les admins (admin requis)"],
@@ -56,9 +62,13 @@ export function parseCommand(input) {
   const body = trimmed.slice(1).trim();
   if (!body) return { command: "", args: "" };
   const splitAt = body.search(/\s/);
-  return splitAt === -1
-    ? { command: body.toLowerCase(), args: "" }
-    : { command: body.slice(0, splitAt).toLowerCase(), args: body.slice(splitAt).trim() };
+  const rawCommand = (splitAt === -1 ? body : body.slice(0, splitAt)).toLowerCase();
+  const args = splitAt === -1 ? "" : body.slice(splitAt).trim();
+  const aliases = {
+    calc: "calcul", groupinfo: "groupe", choose: "choisir", reverse: "inverse",
+    joke: "blague", quote: "citation", roll: "de", coin: "pile", sysinfo: "diagnostic"
+  };
+  return { command: aliases[rawCommand] || rawCommand, args };
 }
 function pick(items) { return items[Math.floor(Math.random() * items.length)]; }
 function formatMenu(botName) {
@@ -165,10 +175,88 @@ export async function getCommandReply(parsed, context) {
     case "minuscules": case "lower": return args ? args.toLocaleLowerCase("fr-FR") : "Utilisation : .minuscules TON TEXTE";
     case "compter": case "count": return args ? "🔢 Caractères : " + [...args].length + "\nMots : " + ((args.match(/\S+/g) || []).length) : "Utilisation : .compter un texte";
     case "emoji": return args ? "✨ " + args : "😀 😎 😂 🔥 ❤️ 🧛🏾 🎉 💯";
+    case "settings": {
+      const saved = isGroup ? (context.groupSettings?.get(jid) || {}) : {};
+      return "⚙️ *DRACULA NOSFERA — RÉGLAGES*\n" +
+        "Préfixes : . et !\n" +
+        "Anti-lien : " + (saved.antilink ? "ON" : "OFF") + "\n" +
+        "Anti-mention : " + (saved.antimention ? "ON" : "OFF") + "\n" +
+        "Bienvenue : " + (saved.welcome === false ? "OFF" : "ON") + "\n" +
+        "Départ : " + (saved.goodbye === false ? "OFF" : "ON") + "\n" +
+        "Auto-réaction : " + (saved.autoreact ? "ON" : "OFF") + "\n" +
+        (isGroup ? "Réglages de ce groupe (en mémoire)." : "Pour régler un groupe, utilise les commandes dans ce groupe.");
+    }
+    case "password": {
+      const length = args ? Number(args) : 16;
+      if (!Number.isInteger(length) || length < 8 || length > 64) return "Utilisation : .password 16 (longueur de 8 à 64 caractères).";
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%_-";
+      const bytes = randomBytes(length);
+      return "🔐 Mot de passe généré (" + length + " caractères) :\n" + [...bytes].map(b => alphabet[b % alphabet.length]).join("");
+    }
+    case "uuid": return "🆔 " + randomUUID();
+    case "hash": return args ? "🔏 SHA-256 : " + createHash("sha256").update(args, "utf8").digest("hex") : "Utilisation : .hash texte";
+    case "base64": {
+      const match = args.match(/^(encode|decode)\s+([\s\S]+)$/i);
+      if (!match) return "Utilisation : .base64 encode texte ou .base64 decode texte";
+      if (match[1].toLowerCase() === "encode") return Buffer.from(match[2], "utf8").toString("base64");
+      if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(match[2])) return "❌ Texte Base64 invalide.";
+      return Buffer.from(match[2], "base64").toString("utf8");
+    }
+    case "convert": {
+      const m = args.match(/^(-?\d+(?:[.,]\d+)?)\s*(km|mi|kg|lb|c|f)\s+(km|mi|kg|lb|c|f)$/i);
+      if (!m) return "Utilisation : .convert 10 km mi | 5 kg lb | 32 f c";
+      const value = Number(m[1].replace(",", "."));
+      const from = m[2].toLowerCase(), to = m[3].toLowerCase();
+      const pairs = { km: "mi", mi: "km", kg: "lb", lb: "kg", c: "f", f: "c" };
+      if (pairs[from] !== to) return "❌ Unités incompatibles. Utilise km/mi, kg/lb ou c/f.";
+      const converted = from === "km" ? value * 0.621371 : from === "mi" ? value / 0.621371 : from === "kg" ? value * 2.20462 : from === "lb" ? value / 2.20462 : from === "c" ? value * 9 / 5 + 32 : (value - 32) * 5 / 9;
+      return "🔄 " + value + " " + from.toUpperCase() + " = " + Number(converted.toFixed(2)) + " " + to.toUpperCase();
+    }
+    case "rps": {
+      const user = args.toLowerCase().trim();
+      const choices = { pierre: "pierre", rock: "pierre", papier: "papier", paper: "papier", ciseaux: "ciseaux", scissors: "ciseaux" };
+      if (!choices[user]) return "Utilisation : .rps pierre, .rps papier ou .rps ciseaux";
+      const mine = pick(["pierre", "papier", "ciseaux"]);
+      const win = { pierre: "ciseaux", papier: "pierre", ciseaux: "papier" };
+      return "✊ Toi : " + choices[user] + " | Moi : " + mine + "\n" + (choices[user] === mine ? "🤝 Égalité !" : win[choices[user]] === mine ? "🎉 Tu gagnes !" : "😈 Je gagne !");
+    }
+    case "fact": return "🧠 Le poulpe possède trois cœurs. Vérifie toujours les faits surprenants avant de les partager !";
+    case "rate": {
+      if (!args) return "Utilisation : .rate ce que tu veux noter";
+      return "⭐ Je donne à *" + args.slice(0, 120) + "* la note de " + (1 + Math.floor(Math.random() * 10)) + "/10 😂 (juste pour rire)";
+    }
+    case "ship": {
+      const names = args.split(/[|+&,]/).map(s => s.trim()).filter(Boolean);
+      if (names.length !== 2) return "Utilisation : .ship prénom1 | prénom2";
+      return "💞 Compatibilité imaginaire de *" + names[0].slice(0, 40) + " + " + names[1].slice(0, 40) + "* : " + Math.floor(Math.random() * 101) + "% 😂";
+    }
     case "groupe": {
       if (!isGroup) return "ℹ️ Cette commande fonctionne uniquement dans un groupe.";
       const meta = await sock.groupMetadata(jid);
       return "👥 Informations du groupe\nNom : " + (meta.subject || "Sans nom") + "\nMembres : " + meta.participants.length + "\nAdministrateurs : " + meta.participants.filter(p => p.admin).length;
+    }
+    case "admins": case "tagadmins": case "hidetag": {
+      if (!isGroup) return "ℹ️ Cette commande fonctionne uniquement dans un groupe.";
+      const meta = await sock.groupMetadata(jid);
+      const admins = meta.participants.filter(p => p.admin);
+      if (command === "admins") return "👑 Administrateurs : " + (admins.map(p => "@" + p.id.split("@")[0]).join(" ") || "aucun") + "\nTotal : " + admins.length;
+      const auth = await requireGroupAdmin(context);
+      if (!auth.ok) return auth.reply;
+      if (command === "tagadmins") {
+        if (!admins.length) return "Aucun administrateur trouvé.";
+        await sock.sendMessage(jid, { text: (args || "📢 Attention aux admins :") + "\n" + admins.map(p => "@" + p.id.split("@")[0]).join(" "), mentions: admins.map(p => p.id) }, { quoted: message });
+      } else {
+        await sock.sendMessage(jid, { text: args || "📢 Attention à tous !", mentions: meta.participants.map(p => p.id) }, { quoted: message });
+      }
+      return "";
+    }
+    case "poll": {
+      if (!isGroup) return "ℹ️ Cette commande fonctionne uniquement dans un groupe.";
+      const parts = args.split("|").map(s => s.trim()).filter(Boolean);
+      if (parts.length < 3) return "Utilisation : .poll Question | option 1 | option 2 (au moins 2 options).";
+      if (parts.length > 13) return "❌ Maximum 12 options.";
+      await sock.sendMessage(jid, { poll: { name: parts[0].slice(0, 250), values: parts.slice(1, 13).map(s => s.slice(0, 100)), selectableCount: 1 } }, { quoted: message });
+      return "";
     }
     case "lien": case "link": {
       const auth = await requireGroupAdmin(context);
