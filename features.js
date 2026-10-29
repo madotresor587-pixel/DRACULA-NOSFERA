@@ -4,10 +4,11 @@ import yts from "yt-search";
 const groupFlags = new Map();
 const messageRate = new Map();
 const lastAutoReaction = new Map();
+const recentMessages = new Map();
 
 function flagsFor(jid, groupSettings) {
   const saved = groupSettings.get(jid) || {};
-  return { antilink: false, antimention: false, welcome: true, goodbye: true, autoreact: false, ...saved };
+  return { antilink: false, antilinkMode: "delete", antimention: false, antispam: false, welcome: true, goodbye: true, autoreact: false, ...saved };
 }
 function getText(message) {
   const m = message?.message;
@@ -41,10 +42,20 @@ export async function handleAutomation(context) {
   if (text.startsWith(".antilink ") || text.startsWith("!antilink ")) {
     if (!(await actorIsAdmin(context))) return "⛔ Seul un administrateur peut modifier l’anti-lien.";
     const value = text.split(/\s+/)[1]?.toLowerCase();
-    if (!["on", "off"].includes(value)) return "Utilisation : .antilink on ou .antilink off";
-    settings.antilink = value === "on";
+    if (!["on", "off", "warn"].includes(value)) return "Utilisation : .antilink on, .antilink warn ou .antilink off";
+    settings.antilink = value !== "off";
+    if (value === "warn") settings.antilinkMode = "warn";
+    if (value === "on") settings.antilinkMode = "delete";
     groupSettings.set(jid, settings);
-    return "🛡️ Anti-lien : " + (settings.antilink ? "activé" : "désactivé") + " (mémoire temporaire, réinitialisée au redémarrage).";
+    return "🛡️ Anti-lien : " + (value === "off" ? "désactivé" : value === "warn" ? "mode avertissement" : "mode suppression") + " (temporaire).";
+  }
+  if (text.startsWith(".antispam ") || text.startsWith("!antispam ")) {
+    if (!(await actorIsAdmin(context))) return "⛔ Seul un administrateur peut modifier l’anti-spam.";
+    const value = text.split(/\s+/)[1]?.toLowerCase();
+    if (!["on", "off"].includes(value)) return "Utilisation : .antispam on ou .antispam off";
+    settings.antispam = value === "on";
+    groupSettings.set(jid, settings);
+    return "🛡️ Anti-spam : " + (settings.antispam ? "activé" : "désactivé") + ".";
   }
   if (text.startsWith(".antimention ") || text.startsWith("!antimention ")) {
     if (!(await actorIsAdmin(context))) return "⛔ Seul un administrateur peut modifier l’anti-mention.";
@@ -74,6 +85,7 @@ export async function handleAutomation(context) {
   if (settings.antilink && linkFound(text)) {
     const meta = await sock.groupMetadata(jid);
     if (!isAdmin(meta, sender)) {
+      if (settings.antilinkMode === "warn") return "⚠️ Avertissement anti-lien : merci de ne pas partager de liens dans ce groupe.";
       try { await sock.sendMessage(jid, { delete: message.key }); } catch {}
       return "🔗 Lien détecté : message supprimé si WhatsApp l’a autorisé. Respecte les règles du groupe.";
     }
@@ -86,6 +98,19 @@ export async function handleAutomation(context) {
     }
   }
 
+  if (settings.antispam && text && !text.startsWith(".") && !text.startsWith("!")) {
+    const spamKey = jid + ":" + sender;
+    const now = Date.now();
+    const history = (recentMessages.get(spamKey) || []).filter(item => now - item.time < 8000);
+    history.push({ time: now, text: text.toLowerCase().trim() });
+    recentMessages.set(spamKey, history);
+    if (history.length >= 4 && history.slice(-4).every(item => item.text === history[history.length - 1].text)) {
+      recentMessages.set(spamKey, []);
+      try { await sock.sendMessage(jid, { delete: message.key }); } catch {}
+      return "⚠️ Anti-spam : répétition détectée. Évite d’envoyer le même message plusieurs fois.";
+    }
+    if (recentMessages.size > 1000) recentMessages.clear();
+  }
   if (settings.autoreact && text && !text.startsWith(".") && !text.startsWith("!")) {
     const key = jid + ":" + message.key.id;
     if (!lastAutoReaction.has(key)) {
