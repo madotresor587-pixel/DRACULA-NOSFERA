@@ -4,7 +4,9 @@ Bot WhatsApp expérimental en JavaScript/Node.js pour Termux, basé sur Baileys.
 
 ## Commandes
 
-**Commandes inspirées de DEADPOOL-MD :** `.settings`, `.password 16`, `.uuid`, `.hash texte`, `.base64 encode/decode texte`, `.convert 10 km mi`, `.fact`, `.rate texte`, `.ship prénom1 | prénom2`, `.rps pierre/papier/ciseaux` et alias `.calc`, `.groupinfo`, `.choose`, `.reverse`, `.joke`, `.quote`, `.roll`, `.coin`, `.sysinfo`.\n\n**Base et outils :** `.menu`, `.ping`, `.info`, `.diagnostic`, `.correcteur`, `.calcul`, `.date`, `.heure`, `.uptime`, `.memoire`, `.blague`, `.citation`, `.de`, `.pile`, `.8ball`, `.choisir`, `.hasard`, `.quiz`, `.inverse`, `.majuscules`, `.minuscules`, `.compter`, `.emoji`.
+**Commandes inspirées de DEADPOOL-MD :** `.settings`, `.password 16`, `.uuid`, `.hash texte`, `.base64 encode/decode texte`, `.convert 10 km mi`, `.fact`, `.rate texte`, `.ship prénom1 | prénom2`, `.rps pierre/papier/ciseaux` et alias `.calc`, `.groupinfo`, `.choose`, `.reverse`, `.joke`, `.quote`, `.roll`, `.coin`, `.sysinfo`.
+
+**Base et outils :** `.menu`, `.ping`, `.info`, `.diagnostic`, `.correcteur`, `.calcul`, `.date`, `.heure`, `.uptime`, `.memoire`, `.blague`, `.citation`, `.de`, `.pile`, `.8ball`, `.choisir`, `.hasard`, `.quiz`, `.inverse`, `.majuscules`, `.minuscules`, `.compter`, `.emoji`.
 
 **IA :** `.ia ta question` ou `.ai ta question`. Nécessite une clé API OpenAI et un compte/configuration API valide. Ajoute la clé uniquement dans le fichier local `.env`, jamais dans GitHub. L’utilisation de l’API peut être facturée selon ton compte.
 
