@@ -7,6 +7,8 @@ const context = { botName: "DRACULA NOSFERA", isGroup: false };
 test("parses dot and exclamation prefixes", () => {
   assert.deepEqual(parseCommand(".choisir pizza | riz"), { command: "choisir", args: "pizza | riz" });
   assert.deepEqual(parseCommand("!PING"), { command: "ping", args: "" });
+  assert.deepEqual(parseCommand(".choose tea | coffee"), { command: "choisir", args: "tea | coffee" });
+  assert.deepEqual(parseCommand(".groupinfo"), { command: "groupe", args: "" });
   assert.deepEqual(parseCommand("."), { command: "", args: "" });
   assert.deepEqual(parseCommand("hello"), { command: "", args: "" });
 });
@@ -33,6 +35,13 @@ test("basic, diagnostic and entertainment commands reply", async () => {
   assert.match(await getCommandReply(parseCommand(".quiz"), context), /QUIZ/);
   assert.match(await getCommandReply(parseCommand(".emoji"), context), /😀/);
   assert.match(await getCommandReply(parseCommand(".groupe"), context), /uniquement dans un groupe/);
+  assert.match(await getCommandReply(parseCommand(".convert 10 km mi"), context), /6\.21 MI/);
+  assert.match(await getCommandReply(parseCommand(".base64 encode hello"), context), /aGVsbG8=/);
+  assert.match(await getCommandReply(parseCommand(".hash hello"), context), /SHA-256/);
+  assert.match(await getCommandReply(parseCommand(".uuid"), context), /[0-9a-f-]{36}/i);
+  assert.match(await getCommandReply(parseCommand(".password 12"), context), /12 caractères/);
+  assert.match(await getCommandReply(parseCommand(".settings"), context), /RÉGLAGES/);
+  assert.match(await getCommandReply(parseCommand(".poll Question | Oui | Non"), context), /uniquement dans un groupe/);
 });
 
 test("admin commands reject private chats before any group API call", async () => {
