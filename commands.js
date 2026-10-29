@@ -53,9 +53,9 @@ export function parseCommand(input) {
 }
 function pick(items) { return items[Math.floor(Math.random() * items.length)]; }
 function formatMenu(botName) {
-  return "*" + botName + " — MENU*\\n\\n" +
-    COMMANDS.map(([name, desc]) => name + " — " + desc).join("\\n") +
-    "\\n\\nPréfixes : . ou !\\n⚠️ Les commandes d’administration exigent les droits administrateur.";
+  return "*" + botName + " — MENU*\n\n" +
+    COMMANDS.map(([name, desc]) => name + " — " + desc).join("\n") +
+    "\n\nPréfixes : . ou !\n⚠️ Les commandes d’administration exigent les droits administrateur.";
 }
 export function calculate(expression) {
   const input = String(expression ?? "").replace(/\s+/g, "");
@@ -116,23 +116,23 @@ export async function getCommandReply(parsed, context) {
   switch (command) {
     case "menu": case "help": case "aide": return formatMenu(botName);
     case "ping": return "🏓 Pong ! Le gestionnaire de messages répond.";
-    case "info": return "🧛🏾 " + botName + "\\n⚙️ Version 1.3.0\\n📱 Node.js / Termux\\n🧩 Préfixes . et !\\n🛠️ Diagnostic, outils et commandes de groupe";
+    case "info": return "🧛🏾 " + botName + "\n⚙️ Version 1.3.0\n📱 Node.js / Termux\n🧩 Préfixes . et !\n🛠️ Diagnostic, outils et commandes de groupe";
     case "correcteur": case "selftest": {
       const checks = [];
       try { checks.push(calculate("2+2") === 4); } catch { checks.push(false); }
       try { checks.push(calculate("12*(4+3)") === 84); } catch { checks.push(false); }
       checks.push(parseCommand(".ping").command === "ping", parseCommand("!menu").command === "menu");
       const passed = checks.filter(Boolean).length;
-      return "🛠️ AUTO-TEST DRACULA NOSFERA\\nRésultats : " + passed + "/" + checks.length + " contrôles réussis.\\n" +
+      return "🛠️ AUTO-TEST DRACULA NOSFERA\nRésultats : " + passed + "/" + checks.length + " contrôles réussis.\n" +
         (passed === checks.length ? "✅ Calculateur et analyseur de commandes OK." : "⚠️ Un contrôle a échoué : lance npm test.") +
-        "\\nCe test ne répare pas la connexion WhatsApp ni les dépendances.";
+        "\nCe test ne répare pas la connexion WhatsApp ni les dépendances.";
     }
     case "diagnostic": case "diag": {
       const m = process.memoryUsage();
-      return "🩺 DIAGNOSTIC LOCAL\\nNode.js : " + process.version + "\\nPlateforme : " + process.platform +
-        "\\nUptime : " + duration(process.uptime()) + "\\nMémoire RSS : " + (m.rss / 1048576).toFixed(1) + " Mo" +
-        "\\nHeap utilisé : " + (m.heapUsed / 1048576).toFixed(1) + " Mo\\nGestionnaire de commandes : actif" +
-        "\\nVérifie l’état WhatsApp dans Termux. Ce diagnostic n’effectue pas de réparation automatique.";
+      return "🩺 DIAGNOSTIC LOCAL\nNode.js : " + process.version + "\nPlateforme : " + process.platform +
+        "\nUptime : " + duration(process.uptime()) + "\nMémoire RSS : " + (m.rss / 1048576).toFixed(1) + " Mo" +
+        "\nHeap utilisé : " + (m.heapUsed / 1048576).toFixed(1) + " Mo\nGestionnaire de commandes : actif" +
+        "\nVérifie l’état WhatsApp dans Termux. Ce diagnostic n’effectue pas de réparation automatique.";
     }
     case "calcul": case "calc": case "math":
       try { return args ? "🧮 " + args + " = *" + calculate(args) + "*" : "Utilisation : .calcul 12*(4+3)"; }
@@ -141,7 +141,7 @@ export async function getCommandReply(parsed, context) {
     case "date": return "📅 " + new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(now);
     case "heure": case "time": return "🕒 Heure du serveur : " + new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "short" }).format(now);
     case "uptime": return "⏱️ Le processus tourne depuis " + duration(process.uptime()) + ".";
-    case "memoire": case "memory": { const m = process.memoryUsage(); return "🧠 Mémoire\\nRSS : " + (m.rss / 1048576).toFixed(1) + " Mo\\nHeap : " + (m.heapUsed / 1048576).toFixed(1) + "/" + (m.heapTotal / 1048576).toFixed(1) + " Mo"; }
+    case "memoire": case "memory": { const m = process.memoryUsage(); return "🧠 Mémoire\nRSS : " + (m.rss / 1048576).toFixed(1) + " Mo\nHeap : " + (m.heapUsed / 1048576).toFixed(1) + "/" + (m.heapTotal / 1048576).toFixed(1) + " Mo"; }
     case "blague": case "joke": return pick(jokes);
     case "citation": case "quote": return "💬 " + pick(quotes);
     case "de": case "dice": return "🎲 Tu as obtenu : *" + (1 + Math.floor(Math.random() * 6)) + "*";
@@ -149,16 +149,16 @@ export async function getCommandReply(parsed, context) {
     case "8ball": case "boule": return args ? "🎱 " + pick(["Oui, probablement !", "C’est possible.", "Les signes sont favorables.", "Pas sûr, réessaie plus tard.", "Je ne peux pas le prédire.", "Mieux vaut réfléchir encore."]) : "Utilisation : .8ball Est-ce que j’aurai de la chance ?";
     case "choisir": { const options = args.split("|").map(x => x.trim()).filter(Boolean); return options.length < 2 ? "Utilisation : .choisir pizza | attiéké | riz" : "🤔 Je choisis : *" + pick(options) + "*"; }
     case "hasard": case "random": { const p = args.split(/\s+/).map(Number); if (p.length !== 2 || !p.every(Number.isInteger) || p[0] > p[1] || p[1] - p[0] > 1000000000) return "Utilisation : .hasard 1 100"; return "🎲 Nombre choisi : *" + (Math.floor(Math.random() * (p[1] - p[0] + 1)) + p[0]) + "*"; }
-    case "quiz": { const q = pick(quizzes); return "🧠 *QUIZ*\\n" + q.q + "\\nA) " + q.a[0] + "\\nB) " + q.a[1] + "\\nC) " + q.a[2] + "\\nRéponds A, B ou C. (Réponse : " + ["A","B","C"][q.correct] + ")"; }
+    case "quiz": { const q = pick(quizzes); return "🧠 *QUIZ*\n" + q.q + "\nA) " + q.a[0] + "\nB) " + q.a[1] + "\nC) " + q.a[2] + "\nRéponds A, B ou C. (Réponse : " + ["A","B","C"][q.correct] + ")"; }
     case "inverse": return args ? [...args].reverse().join("") : "Utilisation : .inverse Bonjour";
     case "majuscules": case "upper": return args ? args.toLocaleUpperCase("fr-FR") : "Utilisation : .majuscules ton texte";
     case "minuscules": case "lower": return args ? args.toLocaleLowerCase("fr-FR") : "Utilisation : .minuscules TON TEXTE";
-    case "compter": case "count": return args ? "🔢 Caractères : " + [...args].length + "\\nMots : " + ((args.match(/\S+/g) || []).length) : "Utilisation : .compter un texte";
+    case "compter": case "count": return args ? "🔢 Caractères : " + [...args].length + "\nMots : " + ((args.match(/\S+/g) || []).length) : "Utilisation : .compter un texte";
     case "emoji": return args ? "✨ " + args : "😀 😎 😂 🔥 ❤️ 🧛🏾 🎉 💯";
     case "groupe": {
       if (!isGroup) return "ℹ️ Cette commande fonctionne uniquement dans un groupe.";
       const meta = await sock.groupMetadata(jid);
-      return "👥 Informations du groupe\\nNom : " + (meta.subject || "Sans nom") + "\\nMembres : " + meta.participants.length + "\\nAdministrateurs : " + meta.participants.filter(p => p.admin).length;
+      return "👥 Informations du groupe\nNom : " + (meta.subject || "Sans nom") + "\nMembres : " + meta.participants.length + "\nAdministrateurs : " + meta.participants.filter(p => p.admin).length;
     }
     case "lien": case "link": {
       const auth = await requireGroupAdmin(context);
@@ -173,7 +173,7 @@ export async function getCommandReply(parsed, context) {
       const text = args || "📢 Attention à tous !";
       const mentions = participants.map(p => p.id);
       const labels = participants.map(p => "@" + p.id.split("@")[0]).join(" ");
-      await sock.sendMessage(jid, { text: text + "\\n\\n" + labels, mentions }, { quoted: message });
+      await sock.sendMessage(jid, { text: text + "\n\n" + labels, mentions }, { quoted: message });
       return "";
     }
     case "kick": case "retirer": case "promote": case "demote": {
@@ -205,7 +205,7 @@ export async function getCommandReply(parsed, context) {
       await sock.groupUpdateDescription(jid, args.slice(0, 2048));
       return "✅ Description du groupe mise à jour.";
     }
-    case "regles": case "rules": return "📜 Règles suggérées\\n1. Respecter tout le monde.\\n2. Éviter le spam.\\n3. Ne pas partager les informations privées d’autrui.\\n4. Demander l’accord avant de partager une photo ou un contact.\\n5. Respecter les règles du groupe.";
-    default: return "❓ Commande inconnue : " + (parsed.prefix || ".") + command + "\\nTape .menu pour voir les commandes disponibles.";
+    case "regles": case "rules": return "📜 Règles suggérées\n1. Respecter tout le monde.\n2. Éviter le spam.\n3. Ne pas partager les informations privées d’autrui.\n4. Demander l’accord avant de partager une photo ou un contact.\n5. Respecter les règles du groupe.";
+    default: return "❓ Commande inconnue : " + (parsed.prefix || ".") + command + "\nTape .menu pour voir les commandes disponibles.";
   }
 }
