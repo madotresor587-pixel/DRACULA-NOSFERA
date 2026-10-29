@@ -11,9 +11,10 @@ Bot WhatsApp expérimental en JavaScript/Node.js pour Termux, basé sur Baileys.
 **Médias :**
 - `.play nom du morceau` : recherche et renvoie des liens de résultats vidéo/musique ; ne télécharge pas le fichier.
 - `.video titre` : recherche et renvoie des liens vidéo.
-- `.sticker` ou `.s` : réponds à une image pour la convertir en sticker.
-- `.toimg` : conversion sticker vers image **pas encore implémentée**.
+- `.sticker` ou `.s` : réponds à une image normale pour la convertir en sticker.
+- `.vv` : réponds à une photo, une vidéo ou un audio normal pour le renvoyer en vue unique (`viewOnce`). Tu peux ajouter une légende après la commande pour les photos/vidéos, par exemple `.vv à voir une fois`.
 - `.react ❤️` : réponds à un message pour lui appliquer une réaction.
+- Pour respecter la confidentialité, `.vv` refuse de retransmettre les médias déjà reçus en vue unique. Les documents et stickers ne sont pas pris en charge.
 - La conversion de vidéo/GIF en sticker animé n’est pas encore implémentée.
 
 **Groupes :**
