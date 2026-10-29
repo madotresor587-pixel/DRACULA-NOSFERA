@@ -125,6 +125,18 @@ function quotedMessage(context) {
 
 export async function handleMediaCommand(parsed, context, downloadMediaMessage) {
   const { command, args } = parsed;
+  if (command === "react") {
+    const target = quotedMessage(context);
+    if (!target) return { text: "Réponds au message à réagir puis utilise .react ❤️ (une réaction par compte et par message)." };
+    const emoji = [...args.trim()][0];
+    if (!emoji) return { text: "Utilisation : réponds à un message avec .react ❤️" };
+    try {
+      await context.sock.sendMessage(context.jid, { react: { text: emoji, key: target.key } });
+      return { text: "" };
+    } catch {
+      return { text: "❌ WhatsApp n’a pas accepté cette réaction." };
+    }
+  }
   if (["play", "song", "musique", "video"].includes(command)) {
     if (!args) return { text: "Utilisation : ." + command + " nom du morceau ou de la vidéo" };
     try {
