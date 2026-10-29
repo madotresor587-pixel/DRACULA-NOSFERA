@@ -71,7 +71,7 @@ async function startBot() {
       if (!jid || jid === "status@broadcast" || jid.endsWith("@newsletter")) continue;
 
       const incoming = extractText(message);
-      if (!incoming.startsWith(".")) continue;
+      if (!incoming.startsWith(".") && !incoming.startsWith("!")) continue;
 
       const parsed = parseCommand(incoming);
       if (!parsed.command) continue;
