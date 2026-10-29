@@ -1,69 +1,55 @@
 # 🧛🏾 DRACULA NOSFERA
 
-Bot WhatsApp JavaScript/Node.js pour Termux, basé sur Baileys.
+Bot WhatsApp expérimental en JavaScript/Node.js pour Termux, basé sur Baileys.
 
-## Commandes actuellement implémentées
+## Commandes
 
-**Base et diagnostic**
-- `.menu`, `.help`, `.aide`, `!menu` : menu
-- `.ping`, `!ping` : test de réponse
-- `.info` : version
-- `.diagnostic`, `.diag` : plateforme, Node.js, uptime, mémoire
-- `.correcteur`, `.selftest` : auto-test léger du parseur et de la calculatrice
-- `.owner`, `.proprietaire` : état de la configuration propriétaire
+**Base et outils :** `.menu`, `.ping`, `.info`, `.diagnostic`, `.correcteur`, `.calcul`, `.date`, `.heure`, `.uptime`, `.memoire`, `.blague`, `.citation`, `.de`, `.pile`, `.8ball`, `.choisir`, `.hasard`, `.quiz`, `.inverse`, `.majuscules`, `.minuscules`, `.compter`, `.emoji`.
 
-**Outils**
-- `.calcul`, `.calc`, `.math` : calculs + - * / % et parenthèses (sans eval)
-- `.date`, `.heure`, `.time`, `.uptime`, `.memoire`, `.memory`
-- `.inverse texte`, `.majuscules texte`, `.minuscules texte`, `.compter texte`, `.emoji`
+**IA :** `.ia ta question` ou `.ai ta question`. Nécessite une clé API OpenAI et un compte/configuration API valide. Ajoute la clé uniquement dans le fichier local `.env`, jamais dans GitHub. L’utilisation de l’API peut être facturée selon ton compte.
 
-**Jeux et divertissement**
-- `.blague`, `.joke`, `.citation`, `.quote`, `.de`, `.dice`, `.pile`, `.face`, `.coin`
-- `.8ball question`, `.boule question`, `.choisir A | B`, `.hasard 1 100`, `.random`, `.quiz`
+**Médias :**
+- `.play nom du morceau` : recherche et renvoie des liens de résultats vidéo/musique ; ne télécharge pas le fichier.
+- `.video titre` : recherche et renvoie des liens vidéo.
+- `.sticker` ou `.s` : réponds à une image pour la convertir en sticker.
+- `.toimg` : conversion sticker vers image **pas encore implémentée**.
+- `.react ❤️` : réponds à un message pour lui appliquer une réaction.
+- La conversion de vidéo/GIF en sticker animé n’est pas encore implémentée.
 
-**Groupes WhatsApp**
-- `.groupe` : nom, nombre de membres et admins
-- `.lien`, `.link` : lien d’invitation, administrateur du groupe requis
-- `.tagall`, `.mentionall` : mentionner les membres, administrateur requis
-- `.kick @membre`, `.retirer @membre`, `.promote @membre`, `.demote @membre`
-- `.mute`, `.unmute`, `.setname Nouveau nom`, `.setdesc Nouvelle description`
-- `.regles`, `.rules` : règles suggérées
+**Groupes :**
+- `.groupe`, `.lien`, `.tagall`, `.kick @membre`, `.promote @membre`, `.demote @membre`, `.mute`, `.unmute`, `.setname`, `.setdesc`.
+- `.antilink on/off` : filtrage des liens.
+- `.antimention on/off` : filtre les messages contenant 5 mentions ou plus.
+- `.welcome on/off` et `.goodbye on/off` : messages d’arrivée/départ.
+- `.autoreact on/off` : réaction automatique dans le groupe.
+- Les réglages anti-lien, anti-mention, welcome/goodbye et auto-réaction sont en mémoire : ils reviennent aux valeurs par défaut après redémarrage.
+- Les actions de modération nécessitent les droits appropriés. La suppression de messages peut être refusée par WhatsApp si le bot n’a pas les permissions.
 
-Les actions de modération nécessitent les droits WhatsApp adéquats. WhatsApp peut refuser une action selon les rôles, la version de Baileys ou les paramètres du groupe.
+**Association :** QR par défaut. Pour essayer le code d’association par numéro, configure `PAIRING_NUMBER` dans le fichier local `.env`, redémarre le bot, puis suis les instructions WhatsApp. Ne partage jamais ce numéro ni ton dossier de session.
 
-## Installer dans Termux
+## Installation Termux
 
-Si le dépôt n’est pas encore cloné :
 ```sh
 pkg update
 pkg install nodejs git
 git clone https://github.com/madotresor587-pixel/DRACULA-NOSFERA.git
 cd DRACULA-NOSFERA
 npm install
+cp .env.example .env
+nano .env
 npm run check
 npm test
 npm start
 ```
 
-Pour une copie déjà présente, ouvre le dossier du projet et lance :
-```sh
-git pull
-npm install
-npm run check
-npm test
-npm start
-```
+Pour une copie déjà installée : `git pull`, puis `npm install`, `npm run check`, `npm test` et `npm start`.
 
-Associe le bot depuis WhatsApp > Appareils connectés > Connecter un appareil. Si le QR est affiché, scanne-le avec le téléphone qui possède le compte.
+## Limites importantes
 
-## Tests automatisés
-
-GitHub Actions lance `npm run check` et `npm test` sur les changements de `main`. Consulte l’onglet Actions pour le résultat du dernier commit.
-
-## Sécurité et limites
-
-- Le projet vise à progresser vers l’objectif de 430 commandes, mais **seules les commandes listées ici sont implémentées**. Ne considère pas les autres comme disponibles.
-- Le diagnostic et l’auto-test n’effectuent pas de réparation automatique du compte WhatsApp ou du réseau.
-- Ne publie jamais `auth_info/`, des mots de passe, codes d’association, clés API ou fichiers secrets.
-- `auth_info/`, `node_modules/`, `.env` et les logs sont exclus du dépôt par `.gitignore`.
-- Baileys est une bibliothèque non officielle ; utilise-la prudemment et respecte les règles WhatsApp.
+- L’objectif de 430 commandes n’est pas encore atteint. Seules les fonctions décrites comme implémentées sont disponibles.
+- `.play` et `.video` renvoient des liens de recherche, pas un téléchargement audio/vidéo.
+- WhatsApp autorise normalement une seule réaction active par compte et par message. La commande `.react` applique une réaction, elle ne peut pas fabriquer plusieurs réactions distinctes du même compte.
+- Les canaux WhatsApp (`@newsletter`) sont ignorés par le gestionnaire actuel. Réagir automatiquement à une publication de canal et lire son nombre de réactions ne sont pas implémentés ni garantis par Baileys.
+- Le service IA exige une clé API valide; garde-la privée.
+- Ne publie jamais `auth_info/`, `.env`, les codes d’association, les mots de passe ou clés API.
+- Baileys est une bibliothèque non officielle. Utilise le bot de façon respectueuse, évite le spam et respecte les règles WhatsApp.
