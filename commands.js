@@ -14,7 +14,7 @@ const COMMANDS = [
   [".menu / .help / .aide", "Menu des commandes"],
   [".ping", "Tester la réponse"],
   [".info", "Version et environnement"],
-  [".diagnostic", "Diagnostic local non destructif"],
+  [".diagnostic / .correcteur", "Diagnostic et auto-test local"],
   [".calcul 12*(4+3)", "Calcul arithmétique sécurisé"],
   [".date / .heure", "Date et heure du serveur"],
   [".uptime", "Durée de fonctionnement"],
@@ -113,6 +113,14 @@ export async function getCommandReply(parsed, context) {
     case "menu": case "help": case "aide": return formatMenu(botName);
     case "ping": return "🏓 Pong ! Le gestionnaire de messages répond.";
     case "info": return "🧛🏾 " + botName + "\n⚙️ Version 1.2.0\n📱 Node.js / Termux\n🧩 Commandes utilitaires activées";
+    case "correcteur": case "selftest": {
+      const checks = [];
+      try { checks.push(calculate("2+2") === 4); } catch { checks.push(false); }
+      try { checks.push(calculate("12*(4+3)") === 84); } catch { checks.push(false); }
+      checks.push(parseCommand(".ping").command === "ping");
+      const passed = checks.filter(Boolean).length;
+      return "🛠️ AUTO-TEST DRACULA NOSFERA\\nRésultats : " + passed + "/" + checks.length + " contrôles réussis.\\n" + (passed === checks.length ? "✅ Calculateur et analyseur de commandes OK." : "⚠️ Un contrôle a échoué : relance npm test et consulte les logs.") + "\\nCe test ne répare pas la connexion WhatsApp ni les dépendances.";
+    }
     case "diagnostic": case "diag": {
       const m = process.memoryUsage();
       return "🩺 DIAGNOSTIC LOCAL\nNode.js : " + process.version +
