@@ -137,6 +137,40 @@ export async function handleMediaCommand(parsed, context, downloadMediaMessage) 
       return { text: "❌ WhatsApp n’a pas accepté cette réaction." };
     }
   }
+  if (command === "vv" || command === "viewonce" || command === "once") {
+    const target = quotedMessage(context);
+    if (!target) return { text: "Utilisation : réponds à une photo, une vidéo ou un audio normal avec .vv." };
+
+    const raw = target.message || {};
+    // Respecte la confidentialité : ne re-télécharge pas et ne retransmet pas un média déjà envoyé en vue unique.
+    if (raw.viewOnceMessage || raw.viewOnceMessageV2 || raw.viewOnceMessageV2Extension) {
+      return { text: "🔒 Ce média est déjà en vue unique. Pour respecter la confidentialité, DRACULA NOSFERA ne le retransmet pas." };
+    }
+    const content = raw.ephemeralMessage?.message || raw;
+    if (content.viewOnceMessage || content.viewOnceMessageV2 || content.viewOnceMessageV2Extension) {
+      return { text: "🔒 Ce média est déjà en vue unique. Pour respecter la confidentialité, DRACULA NOSFERA ne le retransmet pas." };
+    }
+    const media = content.imageMessage || content.videoMessage || content.audioMessage;
+    if (!media) return { text: "❌ Réponds à une photo, une vidéo ou un audio normal. Les documents et stickers ne sont pas pris en charge." };
+
+    try {
+      const buffer = await downloadMediaMessage(target, "buffer", {});
+      if (content.imageMessage) {
+        return { media: { image: buffer, caption: args || media.caption || "", viewOnce: true } };
+      }
+      if (content.videoMessage) {
+        return { media: { video: buffer, caption: args || media.caption || "", viewOnce: true } };
+      }
+      return { media: {
+        audio: buffer,
+        mimetype: media.mimetype || "audio/ogg; codecs=opus",
+        ptt: Boolean(media.ptt),
+        viewOnce: true
+      } };
+    } catch (error) {
+      return { text: "❌ Impossible de préparer ce média. Vérifie qu’il est encore disponible et réessaie." };
+    }
+  }
   if (["play", "song", "musique", "video"].includes(command)) {
     if (!args) return { text: "Utilisation : ." + command + " nom du morceau ou de la vidéo" };
     try {
