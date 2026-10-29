@@ -26,5 +26,6 @@ test("basic commands return a response", async () => {
   assert.match(await getCommandReply(parseCommand(".ping"), context), /Pong/);
   assert.match(await getCommandReply(parseCommand(".menu"), context), /DRACULA NOSFERA/);
   assert.match(await getCommandReply(parseCommand(".diagnostic"), context), /DIAGNOSTIC LOCAL/);
+  assert.match(await getCommandReply(parseCommand(".correcteur"), context), /contrôles réussis/);
   assert.match(await getCommandReply(parseCommand(".calcul 2+2"), context), /4/);
 });
