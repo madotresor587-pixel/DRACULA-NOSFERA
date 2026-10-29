@@ -1,6 +1,6 @@
 {
   "name": "dracula-nosfera",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Bot WhatsApp expérimental pour Termux avec commandes inspirées de DEADPOOL-MD",
   "type": "module",
   "private": true,
