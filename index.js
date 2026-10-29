@@ -111,11 +111,12 @@ async function startBot() {
           await sock.sendMessage(jid, { text: reply }, { quoted: message });
           continue;
         }
-        if (["sticker", "s", "stickerly", "toimg", "play", "video", "song", "musique", "react"].includes(parsed.command)) {
+        if (["sticker", "s", "stickerly", "play", "video", "song", "musique", "react", "vv", "viewonce", "once"].includes(parsed.command)) {
           const result = await handleMediaCommand(parsed, context, downloadMediaMessage);
           if (result?.text) await sock.sendMessage(jid, { text: result.text }, { quoted: message });
           else if (result?.sticker) await sock.sendMessage(jid, { sticker: result.sticker }, { quoted: message });
           else if (result?.image) await sock.sendMessage(jid, { image: result.image, caption: result.caption || "" }, { quoted: message });
+          else if (result?.media) await sock.sendMessage(jid, result.media, { quoted: message });
           continue;
         }
 
