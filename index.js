@@ -1,13 +1,16 @@
 import makeWASocket, {
   DisconnectReason,
-  useMultiFileAuthState
+  useMultiFileAuthState,
+  downloadMediaMessage
 } from "@whiskeysockets/baileys";
 import pino from "pino";
 import qrcode from "qrcode-terminal";
 import { getCommandReply, parseCommand } from "./commands.js";
+import { handleAutomation, handleMediaCommand, handleAiCommand, onParticipantUpdate } from "./features.js";
 
 const BOT_NAME = "DRACULA NOSFERA";
 let reconnecting = false;
+const groupSettings = new Map();
 
 function extractText(message) {
   const content = message?.message;
@@ -17,6 +20,8 @@ function extractText(message) {
     content?.imageMessage?.caption ??
     content?.videoMessage?.caption ??
     content?.documentMessage?.caption ??
+    content?.buttonsResponseMessage?.selectedButtonId ??
+    content?.listResponseMessage?.singleSelectReply?.selectedRowId ??
     ""
   ).trim();
 }
@@ -32,10 +37,31 @@ async function startBot() {
     syncFullHistory: false
   });
 
+  if (!state.creds.registered && process.env.PAIRING_NUMBER) {
+    const phone = process.env.PAIRING_NUMBER.replace(/[^0-9]/g, "");
+    if (phone.length >= 8) {
+      setTimeout(async () => {
+        try {
+          const code = await sock.requestPairingCode(phone);
+          console.log("Code d’association WhatsApp :", code);
+          console.log("Saisis-le dans WhatsApp > Appareils connectés > Connecter avec un numéro de téléphone.");
+        } catch (error) {
+          console.error("Impossible de générer le code d’association :", error.message);
+        }
+      }, 2500);
+    } else {
+      console.error("PAIRING_NUMBER invalide : utilise l’indicatif pays suivi des chiffres, sans +.");
+    }
+  }
+
   sock.ev.on("creds.update", saveCreds);
+  sock.ev.on("group-participants.update", async (event) => {
+    try { await onParticipantUpdate(sock, event, groupSettings); }
+    catch (error) { console.error("Erreur welcome/goodbye :", error.message); }
+  });
 
   sock.ev.on("connection.update", ({ connection, lastDisconnect, qr }) => {
-    if (qr) {
+    if (qr && !process.env.PAIRING_NUMBER) {
       console.log("\nScanne ce QR avec WhatsApp > Appareils connectés > Connecter un appareil :\n");
       qrcode.generate(qr, { small: true });
     }
@@ -48,17 +74,14 @@ async function startBot() {
       const statusCode = lastDisconnect?.error?.output?.statusCode;
       console.log("⚠️ Connexion fermée. Code :", statusCode ?? "inconnu");
       if (statusCode === DisconnectReason.loggedOut) {
-        console.log("Session déconnectée. Relance l'association WhatsApp si nécessaire.");
+        console.log("Session déconnectée. Supprime auth_info uniquement si tu veux vraiment refaire l’association.");
         return;
       }
       if (reconnecting) return;
       reconnecting = true;
-      console.log("Nouvelle tentative dans 3 secondes...");
       setTimeout(() => {
-        startBot().catch((error) => {
-          reconnecting = false;
-          console.error("Erreur de reconnexion :", error);
-        });
+        reconnecting = false;
+        startBot().catch((error) => console.error("Erreur de reconnexion :", error));
       }, 3000);
     }
   });
@@ -69,27 +92,37 @@ async function startBot() {
       if (!message?.message || message.key?.fromMe) continue;
       const jid = message.key?.remoteJid;
       if (!jid || jid === "status@broadcast" || jid.endsWith("@newsletter")) continue;
-
+      const isGroup = jid.endsWith("@g.us");
       const incoming = extractText(message);
-      if (!incoming.startsWith(".") && !incoming.startsWith("!")) continue;
-
       const parsed = parseCommand(incoming);
-      if (!parsed.command) continue;
+      const context = { botName: BOT_NAME, isGroup, sock, jid, message, incoming, groupSettings };
 
       try {
-        const reply = await getCommandReply(parsed, {
-          botName: BOT_NAME,
-          isGroup: jid.endsWith("@g.us"),
-          sock,
-          jid,
-          message
-        });
+        const moderationReply = await handleAutomation(context);
+        if (moderationReply) {
+          await sock.sendMessage(jid, { text: moderationReply }, { quoted: message });
+          continue;
+        }
+        if (!parsed.command) continue;
+
+        if (["ai", "ia", "ask"].includes(parsed.command)) {
+          const reply = await handleAiCommand(parsed.args);
+          await sock.sendMessage(jid, { text: reply }, { quoted: message });
+          continue;
+        }
+        if (["sticker", "s", "stickerly", "toimg", "play", "video", "song", "musique"].includes(parsed.command)) {
+          const result = await handleMediaCommand(parsed, context, downloadMediaMessage);
+          if (result?.text) await sock.sendMessage(jid, { text: result.text }, { quoted: message });
+          else if (result?.sticker) await sock.sendMessage(jid, { sticker: result.sticker }, { quoted: message });
+          else if (result?.image) await sock.sendMessage(jid, { image: result.image, caption: result.caption || "" }, { quoted: message });
+          continue;
+        }
+
+        const reply = await getCommandReply(parsed, context);
         if (reply) await sock.sendMessage(jid, { text: reply }, { quoted: message });
       } catch (error) {
-        console.error("Erreur de commande :", error);
-        await sock.sendMessage(jid, {
-          text: "❌ Une erreur est survenue pour cette commande. Réessaie dans un instant."
-        }, { quoted: message }).catch(() => {});
+        console.error("Erreur de commande/automatisation :", error);
+        await sock.sendMessage(jid, { text: "❌ La commande a échoué. Vérifie la configuration et les logs Termux." }, { quoted: message }).catch(() => {});
       }
     }
   });
