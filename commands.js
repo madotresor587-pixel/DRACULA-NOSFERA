@@ -34,6 +34,7 @@ const COMMANDS = [
   [".convert 10 km mi / .uuid / .password 16", "Conversions, identifiant et mot de passe aléatoires"],
   [".base64 encode/decode texte / .hash texte", "Encodage et empreinte SHA-256"],
   [".settings", "Afficher les réglages de groupe disponibles"],
+  [".fact / .rate / .ship / .rps", "Faits, notes humoristiques et mini-jeux"],
   [".quiz", "Question de quiz"],
   [".inverse / .majuscules / .minuscules", "Outils de texte"],
   [".compter / .emoji", "Compter texte ou envoyer un emoji"],
@@ -136,7 +137,7 @@ export async function getCommandReply(parsed, context) {
     case "menu": case "help": case "aide": return formatMenu(botName);
     case "pair": return process.env.PAIRING_NUMBER ? "📱 Le code d’association est demandé au démarrage. Consulte Termux et saisis le code dans WhatsApp > Appareils connectés." : "📱 Pour utiliser le code d’association, configure PAIRING_NUMBER dans ton fichier .env local, puis redémarre. Ne publie jamais ton numéro ni ce fichier.";
     case "ping": return "🏓 Pong ! Le gestionnaire de messages répond.";
-    case "info": return "🧛🏾 " + botName + "\n⚙️ Version 1.5.0\n📱 Node.js / Termux\n🧩 Préfixes . et !\n🛠️ Diagnostic, outils et commandes de groupe";
+    case "info": return "🧛🏾 " + botName + "\n⚙️ Version 1.6.0\n📱 Node.js / Termux\n🧩 Préfixes . et !\n🛠️ Diagnostic, outils et commandes de groupe";
     case "correcteur": case "selftest": {
       const checks = [];
       try { checks.push(calculate("2+2") === 4); } catch { checks.push(false); }
