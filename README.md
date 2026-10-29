@@ -1,50 +1,69 @@
 # 🧛🏾 DRACULA NOSFERA
 
-Bot WhatsApp en JavaScript pour Node.js/Termux, basé sur Baileys.
+Bot WhatsApp JavaScript/Node.js pour Termux, basé sur Baileys.
 
-## Commandes disponibles
+## Commandes actuellement implémentées
 
-- `.menu`, `.help`, `.aide` : menu
-- `.ping` : tester la réponse du gestionnaire
-- `.info` : version et environnement
-- `.diagnostic`, `.diag` : diagnostic local, version Node, plateforme, uptime et mémoire
-- `.calcul`, `.calc`, `.math` : calculs avec +, -, *, /, %, parenthèses, sans eval
-- `.date` : date du serveur
-- `.heure`, `.time` : heure du serveur
-- `.uptime` : durée de fonctionnement
-- `.memoire`, `.memory` : mémoire du processus
-- `.blague`, `.joke` : blague aléatoire
-- `.citation`, `.quote` : citation aléatoire
-- `.de`, `.dice` : dé à six faces
-- `.pile`, `.face` : pile ou face
-- `.choisir A | B` : choix aléatoire
-- `.hasard 1 100`, `.random` : nombre aléatoire
-- `.inverse texte` : inverser un texte
-- `.majuscules texte`, `.upper` : majuscules
-- `.minuscules texte`, `.lower` : minuscules
-- `.compter texte`, `.count` : compter caractères et mots
-- `.groupe` : informations du groupe
+**Base et diagnostic**
+- `.menu`, `.help`, `.aide`, `!menu` : menu
+- `.ping`, `!ping` : test de réponse
+- `.info` : version
+- `.diagnostic`, `.diag` : plateforme, Node.js, uptime, mémoire
+- `.correcteur`, `.selftest` : auto-test léger du parseur et de la calculatrice
+- `.owner`, `.proprietaire` : état de la configuration propriétaire
+
+**Outils**
+- `.calcul`, `.calc`, `.math` : calculs + - * / % et parenthèses (sans eval)
+- `.date`, `.heure`, `.time`, `.uptime`, `.memoire`, `.memory`
+- `.inverse texte`, `.majuscules texte`, `.minuscules texte`, `.compter texte`, `.emoji`
+
+**Jeux et divertissement**
+- `.blague`, `.joke`, `.citation`, `.quote`, `.de`, `.dice`, `.pile`, `.face`, `.coin`
+- `.8ball question`, `.boule question`, `.choisir A | B`, `.hasard 1 100`, `.random`, `.quiz`
+
+**Groupes WhatsApp**
+- `.groupe` : nom, nombre de membres et admins
+- `.lien`, `.link` : lien d’invitation, administrateur du groupe requis
+- `.tagall`, `.mentionall` : mentionner les membres, administrateur requis
+- `.kick @membre`, `.retirer @membre`, `.promote @membre`, `.demote @membre`
+- `.mute`, `.unmute`, `.setname Nouveau nom`, `.setdesc Nouvelle description`
 - `.regles`, `.rules` : règles suggérées
-- `.owner`, `.proprietaire` : état de configuration du propriétaire
 
-L’objectif initial est 430 commandes, mais seules les commandes ci-dessus sont actuellement implémentées. Les autres ne sont pas annoncées comme disponibles tant qu’elles ne sont pas ajoutées et testées.
+Les actions de modération nécessitent les droits WhatsApp adéquats. WhatsApp peut refuser une action selon les rôles, la version de Baileys ou les paramètres du groupe.
 
-## Installation
+## Installer dans Termux
 
-Dans Termux : installe Node.js et Git, puis exécute `git clone https://github.com/madotresor587-pixel/DRACULA-NOSFERA.git`, entre dans le dossier, puis lance `npm install`, `npm run check`, `npm test` et `npm start`.
+Si le dépôt n’est pas encore cloné :
+```sh
+pkg update
+pkg install nodejs git
+git clone https://github.com/madotresor587-pixel/DRACULA-NOSFERA.git
+cd DRACULA-NOSFERA
+npm install
+npm run check
+npm test
+npm start
+```
 
-Scanne le QR depuis WhatsApp > Appareils connectés > Connecter un appareil.
+Pour une copie déjà présente, ouvre le dossier du projet et lance :
+```sh
+git pull
+npm install
+npm run check
+npm test
+npm start
+```
 
-## Mise à jour
+Associe le bot depuis WhatsApp > Appareils connectés > Connecter un appareil. Si le QR est affiché, scanne-le avec le téléphone qui possède le compte.
 
-Dans le dossier du projet : `git pull`, puis `npm install`, `npm run check`, `npm test`, et enfin `npm start`.
+## Tests automatisés
 
-GitHub Actions exécute automatiquement les vérifications et les tests sur les changements de la branche main. Consulte l’onglet Actions pour voir les résultats.
+GitHub Actions lance `npm run check` et `npm test` sur les changements de `main`. Consulte l’onglet Actions pour le résultat du dernier commit.
 
-## Sécurité
+## Sécurité et limites
 
-- Ne partage jamais `auth_info/` : ce dossier contient la session WhatsApp.
-- Ne partage jamais de code de vérification, mot de passe, jeton ou fichier `.env`.
-- Le dépôt est public : n’y publie aucun secret.
-- Baileys est une bibliothèque non officielle. Respecte les règles de WhatsApp.
-- Le diagnostic informe mais ne répare pas automatiquement les problèmes de réseau ou de session.
+- Le projet vise à progresser vers l’objectif de 430 commandes, mais **seules les commandes listées ici sont implémentées**. Ne considère pas les autres comme disponibles.
+- Le diagnostic et l’auto-test n’effectuent pas de réparation automatique du compte WhatsApp ou du réseau.
+- Ne publie jamais `auth_info/`, des mots de passe, codes d’association, clés API ou fichiers secrets.
+- `auth_info/`, `node_modules/`, `.env` et les logs sont exclus du dépôt par `.gitignore`.
+- Baileys est une bibliothèque non officielle ; utilise-la prudemment et respecte les règles WhatsApp.
