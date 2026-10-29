@@ -4,9 +4,10 @@ import makeWASocket, {
 } from "@whiskeysockets/baileys";
 import pino from "pino";
 import qrcode from "qrcode-terminal";
+import { getCommandReply, parseCommand } from "./commands.js";
 
 const BOT_NAME = "DRACULA NOSFERA";
-const PREFIX = ".";
+let reconnecting = false;
 
 function extractText(message) {
   const content = message?.message;
@@ -22,7 +23,6 @@ function extractText(message) {
 
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./auth_info");
-
   const sock = makeWASocket({
     auth: state,
     logger: pino({ level: "silent" }),
@@ -36,72 +36,60 @@ async function startBot() {
 
   sock.ev.on("connection.update", ({ connection, lastDisconnect, qr }) => {
     if (qr) {
-      console.log("\nScanne ce QR depuis WhatsApp > Appareils connectés > Connecter un appareil :\n");
+      console.log("\nScanne ce QR avec WhatsApp > Appareils connectés > Connecter un appareil :\n");
       qrcode.generate(qr, { small: true });
     }
-
-    if (connection === "connecting") {
-      console.log("⏳ Connexion à WhatsApp...");
-    }
-
+    if (connection === "connecting") console.log("⏳ Connexion à WhatsApp...");
     if (connection === "open") {
+      reconnecting = false;
       console.log(`✅ ${BOT_NAME} est connecté !`);
     }
-
     if (connection === "close") {
       const statusCode = lastDisconnect?.error?.output?.statusCode;
       console.log("⚠️ Connexion fermée. Code :", statusCode ?? "inconnu");
-
       if (statusCode === DisconnectReason.loggedOut) {
-        console.log("Cette session est déconnectée. Relance l'association WhatsApp si nécessaire.");
+        console.log("Session déconnectée. Relance l'association WhatsApp si nécessaire.");
         return;
       }
-
-      console.log("Nouvelle tentative de connexion...");
-      startBot().catch((error) => console.error("Erreur de reconnexion :", error));
+      if (reconnecting) return;
+      reconnecting = true;
+      console.log("Nouvelle tentative dans 3 secondes...");
+      setTimeout(() => {
+        startBot().catch((error) => {
+          reconnecting = false;
+          console.error("Erreur de reconnexion :", error);
+        });
+      }, 3000);
     }
   });
 
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
     if (type !== "notify") return;
-
     for (const message of messages) {
       if (!message?.message || message.key?.fromMe) continue;
-
       const jid = message.key?.remoteJid;
       if (!jid || jid === "status@broadcast" || jid.endsWith("@newsletter")) continue;
 
       const incoming = extractText(message);
-      if (!incoming.startsWith(PREFIX)) continue;
+      if (!incoming.startsWith(".")) continue;
 
-      const [rawCommand] = incoming.slice(PREFIX.length).trim().split(/\s+/);
-      const command = (rawCommand ?? "").toLowerCase();
-
-      let reply;
-      switch (command) {
-        case "menu":
-        case "help":
-          reply =
-            `🧛🏾 *${BOT_NAME}*\n\n` +
-            `• .menu — afficher les commandes\n` +
-            `• .ping — tester la réponse\n` +
-            `• .info — informations du bot\n\n` +
-            `Préfixe : ${PREFIX}`;
-          break;
-        case "ping":
-          reply = "🏓 Pong ! DRACULA NOSFERA répond correctement.";
-          break;
-        case "info":
-          reply = `🧛🏾 ${BOT_NAME}\n⚙️ Version 1.0.0\n📱 Node.js / Termux`;
-          break;
-        default:
-          reply = `Commande inconnue. Tape .menu pour voir les commandes.`;
-      }
+      const parsed = parseCommand(incoming);
+      if (!parsed.command) continue;
 
       try {
-        await sock.sendMessage(jid, { text: reply }, { quoted: message });
+        const reply = await getCommandReply(parsed, {
+          botName: BOT_NAME,
+          isGroup: jid.endsWith("@g.us"),
+          sock,
+          jid,
+          message
+        });
+        if (reply) await sock.sendMessage(jid, { text: reply }, { quoted: message });
       } catch (error) {
-        console.error("Erreur lors de l'envoi du message :", error);
+        console.error("Erreur de commande :", error);
+        await sock.sendMessage(jid, {
+          text: "❌ Une erreur est survenue pour cette commande. Réessaie dans un instant."
+        }, { quoted: message }).catch(() => {});
       }
     }
   });
